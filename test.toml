@@ -1,0 +1,7 @@
+
+#Universal Content Detects Trait
+[tags.thinkphp]
+traits."A".contains=["Hello"]
+traits."B".contains=["World"]
+#traits."C".contains=["World1"]
+expression="false"
