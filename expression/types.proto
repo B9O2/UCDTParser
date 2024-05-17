@@ -1,0 +1,7 @@
+syntax = "proto3";
+package ucdt;
+option go_package = "./expression";
+
+message SourceData{
+    map<string, bytes> data = 1;
+}

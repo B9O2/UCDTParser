@@ -1,195 +1,93 @@
-package ucdt_parser
+package ucdt
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
-	"reflect"
-	"regexp"
 
-	"github.com/B9O2/canvas/containers"
-	"github.com/B9O2/evaluate"
 	"github.com/BurntSushi/toml"
+	"github.com/google/cel-go/common/types"
 )
 
-type Trait struct {
-	In        []string `toml:"in"`
-	Source    []string `toml:"source"`
-	Start     int      `toml:"start"`
-	End       int      `toml:"end"`
-	Contains  []string `toml:"contains"`
-	Regexps   []string `toml:"regexps"`
-	Weight    float32  `toml:"weight"`
-	MinWeight float32  `toml:"min_weight"`
-	MaxWeight float32  `toml:"max_weight"`
+type Environment struct {
 }
 
-func (t Trait) Match(data []byte) bool {
-	if t.End == 0 {
-		t.End = len(data)
-	}
-	data = InterceptData(data, t.Start, t.End)
-
-	contains := false
-	for _, str := range t.Contains {
-		if bytes.Contains(data, []byte(str)) {
-			contains = true
-			break
-		}
-	}
-
-	for _, str := range t.Contains {
-		if bytes.Contains(data, []byte(str)) {
-			contains = true
-			break
-		}
-	}
-
-	regexps := false
-
-	for _, str := range t.Regexps {
-		re := regexp.MustCompile(str)
-		if re.Match(data) {
-			regexps = true
-			break
-		}
-	}
-
-	return contains || regexps
-}
-
-type Info struct {
-	Text     string   `toml:"text"`
-	In       []string `toml:"in"`
-	Source   []string `toml:"source"`
-	Decoding []string `toml:"decoding"`
-	Fetch    string   `toml:"fetch"`
-	Regexps  []string `toml:"regexps"`
-	Expr     string   `toml:"expression"`
-}
-
-func (info *Info) Extract(data []byte) ([]byte, error) {
-	return []byte("INFO EXTRACT"), nil
+func NewEnviroment() *Environment {
+	env := &Environment{}
+	return env
 }
 
 type TagOption struct {
-	Source []string         `toml:"source"`
-	Traits map[string]Trait `toml:"traits"` //[name]TraitOption
-	Info   map[string]Info  `toml:"info"`
-	Expr   string           `toml:"expression"`
+	Source []string   `toml:"source"`
+	Traits TraitMap   `toml:"traits"` //[name]TraitOption
+	Info   InfoMap    `toml:"info"`
+	Expr   Expression `toml:"expression"`
 }
 
-func (t *TagOption) Match(sds map[string]SourceData, e *evaluate.Evaluate) MatchResult {
-	mr := NewMatchResult(0, map[string][]byte{}, []string{}, nil)
-	weightRanges := map[string]containers.Range{}
-	traitHits := map[string]bool{}
+func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchResult {
+	mr := NewMatchResult()
 
-	source := t.Source
-	if len(source) <= 0 {
-		for src := range sds {
-			source = append(source, src)
+	sds := map[string]SourceData{}
+	if len(t.Source) > 0 {
+		for _, src := range t.Source {
+			if data, ok := allSds[src]; ok {
+				sds[src] = data
+			} else {
+				mr.detail = append(mr.detail, "source '%s' has no data", src)
+			}
 		}
+	} else {
+		sds = allSds
+		mr.detail = append(mr.detail, "using all source data")
 	}
 
 	//Trait
-	for name, trait := range t.Traits {
-		traitSource := source
-		if len(trait.Source) > 0 {
-			traitSource = trait.Source
-		}
-
-		var weightRange containers.Range
-		hit := false
-		for _, src := range traitSource {
-			if sd, ok := sds[src]; ok {
-				sd.Range(trait.In, func(_ string, data []byte) bool {
-					if trait.Match(data) {
-						hit = true
-						return false
-					}
-					return true
-				})
-			}
-		}
-
-		traitHits[name] = hit
-		weight := uint(trait.Weight * 100)
-		minWeight := uint(trait.MinWeight * 100)
-		maxWeight := uint(trait.MaxWeight * 100)
-		if hit {
-			if trait.Weight != 0 {
-				weightRange = containers.NewRange(weight, weight)
-			} else {
-				weightRange = containers.NewRange(minWeight, maxWeight)
-			}
-		} else {
-			if trait.Weight == 0 {
-				weightRange = containers.NewRange(minWeight, maxWeight)
-			} else {
-				continue
-			}
-		}
-
-		weightRanges[name] = weightRange
+	scores, detail := t.Traits.Match(sds)
+	for _, s := range scores[true] {
+		mr.score += s
 	}
-
-	var score uint
-	results := SpaceAllocate(weightRanges, 100)
-	for name, hit := range traitHits {
-		if hit {
-			score += results[name]
-		}
-	}
-	mr.score = float32(score) / 100
+	mr.detail = append(mr.detail, detail...)
 
 	//Expression
-	if e != nil {
-		args := map[string]any{
-			"score": score,
-		}
-
-		r, err := e.Eval(t.Expr, args)
+	if len(t.Expr) > 0 {
+		e, err := NewEvaluate(map[string]any{}, make(map[*types.Type]map[string]any))
 		if err != nil {
+			mr.err = err
 			return mr
 		}
+
+		args, err := GenArgs(e, mr.score, sds)
+		if err != nil {
+			mr.detail = append(detail, fmt.Sprintf("[Expression Eval] error:%s", err))
+		}
+
+		r, detail := t.Expr.Eval(e, args)
+		mr.detail = append(mr.detail, detail...)
 		if b, ok := r.(bool); ok {
-			if b {
-				mr.score = 1
-			} else {
-				mr.score = 0
-			}
+			mr.expression = b
 		} else {
-			mr.err = errors.New("expression must return a bool,but '" + reflect.TypeOf(r).String() + "'")
+			mr.detail = append(mr.detail, fmt.Sprintf("expression must return a bool,but '%T'", r))
+			mr.expression = false
+		}
+
+		if mr.expression {
+			mr.score = 1
+		} else {
+			mr.score = 0
 		}
 	} else {
-		mr.detail = append(mr.detail, "[Warning] Expression Disabled")
+		mr.detail = append(mr.detail, "expression not enabled")
 	}
 
 	//Info
-	for name, info := range t.Info {
-		infoSource := source
-		if len(info.Source) > 0 {
-			infoSource = info.Source
-		}
-		for _, src := range infoSource {
-			if sd, ok := sds[src]; ok {
-				sd.Range(info.In, func(_ string, data []byte) bool {
-					data, err := info.Extract(data)
-					if err != nil {
-						mr.detail = append(mr.detail, "[Info Extract]"+name+":"+err.Error())
-					} else {
-						mr.info[name] = data
-					}
-					return true
-				})
-			}
-		}
-	}
+	mr.info, detail = t.Info.Extract(mr.score, sds)
+	mr.detail = append(mr.detail, detail...)
 	return mr
 }
 
 type UCDT struct {
 	Tags map[string]TagOption `toml:"tags"`
+
+	env *Environment
 }
 
 func (u *UCDT) Patch(patchUCDT UCDT) {
@@ -200,7 +98,7 @@ func (u *UCDT) String() string {
 	return fmt.Sprint(*u)
 }
 
-func (u *UCDT) Match(e *evaluate.Evaluate, sds ...SourceData) MatchResults {
+func (u *UCDT) Match(sds ...SourceData) MatchResults {
 	sdMap := map[string]SourceData{}
 	for _, sd := range sds {
 		sdMap[sd.source] = sd
@@ -208,13 +106,15 @@ func (u *UCDT) Match(e *evaluate.Evaluate, sds ...SourceData) MatchResults {
 
 	mrs := make(MatchResults)
 	for tag, opt := range u.Tags {
-		mrs.Add(tag, opt.Match(sdMap, e))
+		mrs.Add(tag, opt.Match(u.env, sdMap))
 	}
 	return mrs
 }
 
-func ParseUCDT(data []byte) (*UCDT, error) {
-	v := &UCDT{}
+func ParseUCDT(data []byte, env *Environment) (*UCDT, error) {
+	v := &UCDT{
+		env: env,
+	}
 	_, err := toml.NewDecoder(bytes.NewReader(data)).Decode(v)
 	return v, err
 }

@@ -1,7 +1,16 @@
 
-#Universal Content Detects Trait
-[tags.thinkphp]
-traits."A".contains=["Hello"]
-traits."B".contains=["World"]
-#traits."C".contains=["World1"]
-expression="false"
+[tags.test_product]
+source=[]
+
+
+traits."check_hello".contains=["Hello"]
+traits."check_world".contains=["World"]
+
+
+#表达式
+
+
+#Info
+info."version".text="No Version"
+info."version".regexps=["Hello","MATCH-2"] #任意一个取得数据即可
+info."version".expression='''aa.data["test"]'''

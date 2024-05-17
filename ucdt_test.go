@@ -1,4 +1,4 @@
-package ucdt_parser
+package ucdt
 
 import (
 	"os"
@@ -10,7 +10,7 @@ func TestUCDT(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	u, err := ParseUCDT(data)
+	u, err := ParseUCDT(data, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -18,8 +18,7 @@ func TestUCDT(t *testing.T) {
 	s := NewSourceData("aa", map[string][]byte{
 		"test": []byte("Hello World!"),
 	})
-
-	mrs := u.Match(nil, s)
-	mrs.Draw(0)
+	mrs := u.Match(s)
+	mrs.Dump(0)
 
 }

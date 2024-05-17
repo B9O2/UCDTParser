@@ -1,4 +1,4 @@
-package ucdt_parser
+package ucdt
 
 import "testing"
 
