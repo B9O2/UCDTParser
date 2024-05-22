@@ -84,37 +84,27 @@ func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchR
 	return mr
 }
 
-type UCDT struct {
-	Tags map[string]TagOption `toml:"tags"`
+type Tags map[string]TagOption
 
-	env *Environment
-}
-
-func (u *UCDT) Patch(patchUCDT UCDT) {
-
-}
-
-func (u *UCDT) String() string {
-	return fmt.Sprint(*u)
-}
-
-func (u *UCDT) Match(sds ...SourceData) MatchResults {
+func (t Tags) Match(env *Environment, sds ...SourceData) MatchResults {
 	sdMap := map[string]SourceData{}
 	for _, sd := range sds {
 		sdMap[sd.source] = sd
 	}
 
 	mrs := make(MatchResults)
-	for tag, opt := range u.Tags {
-		mrs.Add(tag, opt.Match(u.env, sdMap))
+	for tag, opt := range t {
+		mrs.Add(tag, opt.Match(env, sdMap))
 	}
 	return mrs
 }
 
-func ParseUCDT(data []byte, env *Environment) (*UCDT, error) {
-	v := &UCDT{
-		env: env,
-	}
+type UCDT struct {
+	Tags Tags `toml:"tags"`
+}
+
+func ParseUCDT(data []byte) (*UCDT, error) {
+	v := &UCDT{}
 	_, err := toml.NewDecoder(bytes.NewReader(data)).Decode(v)
 	return v, err
 }

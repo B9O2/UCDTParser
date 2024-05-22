@@ -10,7 +10,7 @@ func TestUCDT(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	u, err := ParseUCDT(data, nil)
+	u, err := ParseUCDT(data)
 	if err != nil {
 		panic(err)
 	}
@@ -18,7 +18,7 @@ func TestUCDT(t *testing.T) {
 	s := NewSourceData("aa", map[string][]byte{
 		"test": []byte("Hello World!"),
 	})
-	mrs := u.Match(s)
+	mrs := u.Tags.Match(&Environment{}, s)
 	mrs.Dump(0)
 
 }
