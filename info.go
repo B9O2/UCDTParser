@@ -3,8 +3,6 @@ package ucdt
 import (
 	"fmt"
 	"regexp"
-
-	"github.com/google/cel-go/common/types"
 )
 
 type Info struct {
@@ -39,11 +37,11 @@ func (info *Info) Extract(data []byte) ([]byte, error) {
 
 type InfoMap map[string]Info
 
-func (im InfoMap) Extract(score float32, sds map[string]SourceData) (map[string][]byte, []string) {
+func (im InfoMap) Extract(env *Environment, score float32, sds map[string]SourceData) (map[string][]byte, []string) {
 	var detail []string
 	result := map[string][]byte{}
 
-	e, err := NewEvaluate(map[string]any{}, make(map[*types.Type]map[string]any))
+	e, err := NewEvaluate(env.funcs, env.memberMethods)
 	if err != nil {
 		detail = append(detail, fmt.Sprintf("[Info Extract] error:%s", err))
 	}

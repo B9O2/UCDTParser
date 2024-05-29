@@ -9,10 +9,20 @@ import (
 )
 
 type Environment struct {
+	funcs         map[string]any
+	memberMethods map[*types.Type]map[string]any
 }
 
-func NewEnviroment() *Environment {
-	env := &Environment{}
+func NewEnviroment(funcs map[string]any, memberMethods map[*types.Type]map[string]any) *Environment {
+	if funcs == nil {
+		funcs = map[string]any{}
+	}
+	if memberMethods == nil {
+		memberMethods = map[*types.Type]map[string]any{}
+	}
+	env := &Environment{
+		funcs, memberMethods,
+	}
 	return env
 }
 
@@ -49,7 +59,7 @@ func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchR
 
 	//Expression
 	if len(t.Expr) > 0 {
-		e, err := NewEvaluate(map[string]any{}, make(map[*types.Type]map[string]any))
+		e, err := NewEvaluate(env.funcs, env.memberMethods)
 		if err != nil {
 			mr.err = err
 			return mr
@@ -79,7 +89,7 @@ func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchR
 	}
 
 	//Info
-	mr.info, detail = t.Info.Extract(mr.score, sds)
+	mr.info, detail = t.Info.Extract(env, mr.score, sds)
 	mr.detail = append(mr.detail, detail...)
 	return mr
 }

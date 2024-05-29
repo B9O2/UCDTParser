@@ -8,7 +8,7 @@ traits."check_world".contains=["World"]
 
 
 #表达式
-
+expression='''aa.data["test"].help()'''
 
 #Info
 info."version".text="No Version"
