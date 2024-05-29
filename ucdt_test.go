@@ -25,7 +25,7 @@ func TestUCDT(t *testing.T) {
 
 	s := NewSourceData("aa", map[string][]byte{
 		"test": []byte("Hello World!"),
-	})
+	}, nil)
 
 	mrs := u.Tags.Match(NewEnviroment(map[string]any{
 		"DUMP": DUMP,

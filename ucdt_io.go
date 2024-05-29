@@ -5,6 +5,7 @@ import "fmt"
 type SourceData struct {
 	source   string
 	contents map[string][]byte
+	err      error
 }
 
 func (sd SourceData) IsValid(limits []string) bool {
@@ -34,10 +35,11 @@ func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 	}
 }
 
-func NewSourceData(source string, contents map[string][]byte) SourceData {
+func NewSourceData(source string, contents map[string][]byte, err error) SourceData {
 	return SourceData{
 		source:   source,
 		contents: contents,
+		err:      err,
 	}
 }
 

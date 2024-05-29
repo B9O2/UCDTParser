@@ -57,6 +57,7 @@ func GenArgs(e *evaluate.Evaluate, score float32, sds map[string]SourceData) (ma
 		} else {
 			args[name] = &expression.SourceData{
 				Data: sd.contents,
+				Err:  sd.err.Error(),
 			}
 		}
 	}
