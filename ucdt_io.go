@@ -1,6 +1,9 @@
 package ucdt
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type SourceData struct {
 	source   string
@@ -33,6 +36,23 @@ func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 			}
 		}
 	}
+}
+
+func (sd SourceData) String() string {
+	builder := strings.Builder{}
+	err := "No Error"
+	if sd.err != nil {
+		err = sd.err.Error()
+	}
+	headLine := fmt.Sprintf("========== %s:(%s) ============\n", sd.source, err)
+	builder.WriteString(headLine)
+	sd.Range(nil, func(s string, b []byte) bool {
+		builder.WriteString(fmt.Sprintf("\n[%s]:%s\n", s, string(b)))
+		return true
+	})
+	builder.WriteString(strings.Repeat("=", len(headLine)))
+
+	return builder.String()
 }
 
 func NewSourceData(source string, contents map[string][]byte, err error) SourceData {

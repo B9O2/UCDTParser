@@ -55,10 +55,15 @@ func GenArgs(e *evaluate.Evaluate, score float32, sds map[string]SourceData) (ma
 		if err := e.NewClass(name, (*expression.SourceData)(nil), nil, nil); err != nil {
 			return nil, fmt.Errorf("source data '%s' instance failed: %s", name, err)
 		} else {
+			sourceErr := ""
+			if sd.err != nil {
+				sourceErr = sd.err.Error()
+			}
 			args[name] = &expression.SourceData{
 				Data: sd.contents,
-				Err:  sd.err.Error(),
+				Err:  sourceErr,
 			}
+
 		}
 	}
 

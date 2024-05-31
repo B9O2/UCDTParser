@@ -13,6 +13,14 @@ type Environment struct {
 	memberMethods map[*types.Type]map[string]any
 }
 
+func (e *Environment) Funcs() map[string]any {
+	return e.funcs
+}
+
+func (e *Environment) MemberMethods() map[*types.Type]map[string]any {
+	return e.memberMethods
+}
+
 func NewEnviroment(funcs map[string]any, memberMethods map[*types.Type]map[string]any) *Environment {
 	if funcs == nil {
 		funcs = map[string]any{}
@@ -55,6 +63,7 @@ func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchR
 	for _, s := range scores[true] {
 		mr.score += s
 	}
+	mr.scoreDetail = scores
 	mr.detail = append(mr.detail, detail...)
 
 	//Expression
