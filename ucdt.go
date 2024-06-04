@@ -50,7 +50,7 @@ func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchR
 			if data, ok := allSds[src]; ok {
 				sds[src] = data
 			} else {
-				mr.detail = append(mr.detail, "source '%s' has no data", src)
+				mr.detail = append(mr.detail, fmt.Sprintf("source '%s' has no data", src))
 			}
 		}
 	} else {
@@ -111,7 +111,7 @@ func (t Tags) Match(env *Environment, sds ...SourceData) MatchResults {
 		sdMap[sd.source] = sd
 	}
 
-	mrs := make(MatchResults)
+	mrs := NewMatchResults()
 	for tag, opt := range t {
 		mrs.Add(tag, opt.Match(env, sdMap))
 	}

@@ -4,7 +4,7 @@ go 1.21.6
 
 require (
 	github.com/B9O2/canvas v0.0.4
-	github.com/B9O2/evaluate v0.1.6
+	github.com/B9O2/evaluate v0.1.7
 	github.com/BurntSushi/toml v1.3.2
 	google.golang.org/protobuf v1.34.1
 )

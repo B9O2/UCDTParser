@@ -52,7 +52,7 @@ func GenArgs(e *evaluate.Evaluate, score float32, sds map[string]SourceData) (ma
 	}
 
 	for name, sd := range sds {
-		if err := e.NewClass(name, (*expression.SourceData)(nil), nil, nil); err != nil {
+		if err := e.NewClass(name, (*expression.SourceData)(nil), nil); err != nil {
 			return nil, fmt.Errorf("source data '%s' instance failed: %s", name, err)
 		} else {
 			sourceErr := ""

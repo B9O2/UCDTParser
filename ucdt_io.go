@@ -11,6 +11,10 @@ type SourceData struct {
 	err      error
 }
 
+func (sd SourceData) Source() string {
+	return sd.source
+}
+
 func (sd SourceData) IsValid(limits []string) bool {
 	for _, limit := range limits {
 		if limit == sd.source {
@@ -56,6 +60,9 @@ func (sd SourceData) String() string {
 }
 
 func NewSourceData(source string, contents map[string][]byte, err error) SourceData {
+	if contents == nil {
+		contents = map[string][]byte{}
+	}
 	return SourceData{
 		source:   source,
 		contents: contents,
@@ -126,4 +133,8 @@ func (mrs MatchResults) Dump(suitability float32) {
 		}
 		return true
 	})
+}
+
+func NewMatchResults()MatchResults{
+	return make(MatchResults)
 }
