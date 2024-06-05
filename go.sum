@@ -1,3 +1,7 @@
+github.com/B9O2/Multitasking v0.6.8 h1:6UTuUnrxSqG2sgBeFJDSbOt5cU+cHuUut2Tl2VCEnmE=
+github.com/B9O2/Multitasking v0.6.8/go.mod h1:SsIrn15pxyRPKtFxS5c8pQosqdpwyBRyMNTYENVmwmA=
+github.com/B9O2/NStruct v0.0.5 h1:G2VKyujJ73rBFK4+JzuaINYKJihKoLAE+/wSVRlE2ds=
+github.com/B9O2/NStruct v0.0.5/go.mod h1:n39Dq+nLHIt8Fsua8CxxyyVGk/C7Xeoqow9MAdKR13U=
 github.com/B9O2/canvas v0.0.4 h1:yygt+2vVxB2fmkAHh4aYxmPIgilLOSbZbcJlZNJJuIA=
 github.com/B9O2/canvas v0.0.4/go.mod h1:GSMWTdkbZfQ5XB1kfu9R/jvaf/QQKSo2IJlz8bZfszs=
 github.com/B9O2/evaluate v0.1.1 h1:RllIUsXM9p7AZbn4LDIpMDQgo/R1canc07YTCFT7F18=
@@ -34,6 +38,8 @@ github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/smallnest/chanx v1.2.0 h1:RLyldZBbQZ4O0dSvdkTMHo4+mDw20Bc1jXXTHf+ymZo=
+github.com/smallnest/chanx v1.2.0/go.mod h1:+4nWMF0+CqEcU74SnX2NxaGqZ8zX4pcQ8Jcs77DbX5A=
 github.com/stoewer/go-strcase v1.2.0 h1:Z2iHWqGXH00XYgqDmNgQbIBxf3wrNq0F3feEy0ainaU=
 github.com/stoewer/go-strcase v1.2.0/go.mod h1:IBiWB2sKIp3wVVQ3Y035++gc+knqhUQag1KpM8ahLw8=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

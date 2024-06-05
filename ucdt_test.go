@@ -27,7 +27,7 @@ func TestUCDT(t *testing.T) {
 		"test": []byte("Hello World!"),
 	})
 
-	mrs := u.Tags.Match(NewEnviroment(map[string]any{
+	mrs, err := u.Tags.Match(NewEnviroment(map[string]any{
 		"DUMP": DUMP,
 	}, map[*types.Type]map[string]any{
 		types.BytesType: {
@@ -36,7 +36,10 @@ func TestUCDT(t *testing.T) {
 				return true
 			},
 		},
-	}), s)
+	}), 20, s)
+	if err != nil {
+		fmt.Println(err)
+	}
 	mrs.Dump(0)
 
 }

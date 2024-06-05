@@ -2,8 +2,10 @@ package ucdt
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 
+	"github.com/B9O2/Multitasking"
 	"github.com/BurntSushi/toml"
 	"github.com/google/cel-go/common/types"
 )
@@ -86,13 +88,49 @@ func (t *TagOption) Match(env *Environment, sds ...SourceData) MatchResult {
 
 type Tags map[string]TagOption
 
-func (t Tags) Match(env *Environment, sds ...SourceData) MatchResults {
+func (t Tags) Match(env *Environment, threads uint, sds ...SourceData) (MatchResults, error) {
+	type task struct {
+		tag string
+		opt TagOption
+	}
+	type result struct {
+		tag string
+		mr  MatchResult
+	}
+
 	mrs := NewMatchResults()
 	//todo: Multitasking
-	for tag, opt := range t {
-		mrs.Add(tag, opt.Match(env, sds...))
+
+	mt := Multitasking.NewMultitasking("match", nil)
+	mt.Register(
+		func(dc Multitasking.DistributeController) {
+			for tag, opt := range t {
+				dc.AddTask(task{
+					tag: tag,
+					opt: opt,
+				})
+			}
+		},
+		func(ec Multitasking.ExecuteController, a any) any {
+			task := a.(task)
+			return result{
+				tag: task.tag,
+				mr:  task.opt.Match(env, sds...),
+			}
+		},
+	)
+
+	mt.SetResultMiddlewares(Multitasking.NewBaseMiddleware(func(ec Multitasking.ExecuteController, i interface{}) (interface{}, error) {
+		res := i.(result)
+		mrs.Add(res.tag, res.mr)
+		return nil, nil
+	}))
+
+	_, err := mt.Run(context.Background(), threads)
+	if err != nil {
+		return mrs, err
 	}
-	return mrs
+	return mrs, nil
 }
 
 type UCDT struct {

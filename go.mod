@@ -10,6 +10,12 @@ require (
 )
 
 require (
+	github.com/B9O2/NStruct v0.0.5 // indirect
+	github.com/smallnest/chanx v1.2.0 // indirect
+)
+
+require (
+	github.com/B9O2/Multitasking v0.6.8
 	github.com/B9O2/raev v0.1.8 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/google/cel-go v0.20.1 // indirect
