@@ -9,9 +9,13 @@ type SourceData map[string][]byte
 
 func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 	if len(positions) <= 0 {
-		for k, v := range sd {
-			if !f(k, v) {
-				break
+		if raw, ok := sd["raw"]; ok {
+			f("raw", raw)
+		} else {
+			for k, v := range sd {
+				if !f(k, v) {
+					break
+				}
 			}
 		}
 	} else {
