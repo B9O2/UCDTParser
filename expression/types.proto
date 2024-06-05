@@ -4,5 +4,8 @@ option go_package = "./expression";
 
 message SourceData{
     map<string, bytes> data = 1;
-    string err = 2;
+}
+
+message SourceDataList{
+    repeated SourceData sds = 1;
 }

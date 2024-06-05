@@ -5,36 +5,19 @@ import (
 	"strings"
 )
 
-type SourceData struct {
-	source   string
-	contents map[string][]byte
-	err      error
-}
-
-func (sd SourceData) Source() string {
-	return sd.source
-}
-
-func (sd SourceData) IsValid(limits []string) bool {
-	for _, limit := range limits {
-		if limit == sd.source {
-			return true
-		}
-	}
-	return false
-}
+type SourceData map[string][]byte
 
 func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 	if len(positions) <= 0 {
-		for k, v := range sd.contents {
+		for k, v := range sd {
 			if !f(k, v) {
 				break
 			}
 		}
 	} else {
 		for _, k := range positions {
-			if _, ok := sd.contents[k]; ok {
-				if !f(k, sd.contents[k]) {
+			if _, ok := sd[k]; ok {
+				if !f(k, sd[k]) {
 					break
 				}
 			}
@@ -44,11 +27,7 @@ func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 
 func (sd SourceData) String() string {
 	builder := strings.Builder{}
-	err := "No Error"
-	if sd.err != nil {
-		err = sd.err.Error()
-	}
-	headLine := fmt.Sprintf("========== %s:(%s) ============\n", sd.source, err)
+	headLine := fmt.Sprintf("===========================\n")
 	builder.WriteString(headLine)
 	sd.Range(nil, func(s string, b []byte) bool {
 		builder.WriteString(fmt.Sprintf("\n[%s]:%s\n", s, string(b)))
@@ -57,17 +36,6 @@ func (sd SourceData) String() string {
 	builder.WriteString(strings.Repeat("=", len(headLine)))
 
 	return builder.String()
-}
-
-func NewSourceData(source string, contents map[string][]byte, err error) SourceData {
-	if contents == nil {
-		contents = map[string][]byte{}
-	}
-	return SourceData{
-		source:   source,
-		contents: contents,
-		err:      err,
-	}
 }
 
 type MatchResult struct {
@@ -135,6 +103,6 @@ func (mrs MatchResults) Dump(suitability float32) {
 	})
 }
 
-func NewMatchResults()MatchResults{
+func NewMatchResults() MatchResults {
 	return make(MatchResults)
 }

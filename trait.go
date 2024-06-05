@@ -10,7 +10,6 @@ import (
 
 type Trait struct {
 	In        []string `toml:"in"`
-	Source    []string `toml:"source"`
 	Start     int      `toml:"start"`
 	End       int      `toml:"end"`
 	Contains  []string `toml:"contains"`
@@ -59,7 +58,7 @@ func (t Trait) Match(data []byte) (bool, error) {
 
 type TraitMap map[string]Trait
 
-func (tm TraitMap) Match(sds map[string]SourceData) (map[bool]map[string]float32, []string) {
+func (tm TraitMap) Match(sds []SourceData) (map[bool]map[string]float32, []string) {
 	var detail []string
 	weightRanges := map[string]containers.Range{}
 	traitHits := map[string]bool{}
@@ -83,17 +82,10 @@ func (tm TraitMap) Match(sds map[string]SourceData) (map[bool]map[string]float32
 			}
 		}
 
-		if len(trait.Source) > 0 {
-			for _, src := range trait.Source {
-				if sd, ok := sds[src]; ok {
-					sd.Range(trait.In, matcher)
-				}
-			}
-		} else {
-			for _, sd := range sds {
-				sd.Range(trait.In, matcher)
-			}
+		for _, sd := range sds {
+			sd.Range(trait.In, matcher)
 		}
+
 		traitHits[name] = hit
 		weight := uint(trait.Weight * 100)
 		minWeight := uint(trait.MinWeight * 100)

@@ -35,28 +35,13 @@ func NewEnviroment(funcs map[string]any, memberMethods map[*types.Type]map[strin
 }
 
 type TagOption struct {
-	Source []string   `toml:"source"`
 	Traits TraitMap   `toml:"traits"` //[name]TraitOption
 	Info   InfoMap    `toml:"info"`
 	Expr   Expression `toml:"expression"`
 }
 
-func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchResult {
+func (t *TagOption) Match(env *Environment, sds ...SourceData) MatchResult {
 	mr := NewMatchResult()
-
-	sds := map[string]SourceData{}
-	if len(t.Source) > 0 {
-		for _, src := range t.Source {
-			if data, ok := allSds[src]; ok {
-				sds[src] = data
-			} else {
-				mr.detail = append(mr.detail, fmt.Sprintf("source '%s' has no data", src))
-			}
-		}
-	} else {
-		sds = allSds
-		mr.detail = append(mr.detail, "using all source data")
-	}
 
 	//Trait
 	scores, detail := t.Traits.Match(sds)
@@ -74,11 +59,7 @@ func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchR
 			return mr
 		}
 
-		args, err := GenArgs(e, mr.score, sds)
-		if err != nil {
-			mr.detail = append(detail, fmt.Sprintf("[Expression Eval] error:%s", err))
-		}
-
+		args := GenArgs(e, mr.score, sds)
 		r, detail := t.Expr.Eval(e, args)
 		mr.detail = append(mr.detail, detail...)
 		if b, ok := r.(bool); ok {
@@ -106,14 +87,10 @@ func (t *TagOption) Match(env *Environment, allSds map[string]SourceData) MatchR
 type Tags map[string]TagOption
 
 func (t Tags) Match(env *Environment, sds ...SourceData) MatchResults {
-	sdMap := map[string]SourceData{}
-	for _, sd := range sds {
-		sdMap[sd.source] = sd
-	}
-
 	mrs := NewMatchResults()
+	//todo: Multitasking
 	for tag, opt := range t {
-		mrs.Add(tag, opt.Match(env, sdMap))
+		mrs.Add(tag, opt.Match(env, sds...))
 	}
 	return mrs
 }

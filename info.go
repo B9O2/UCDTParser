@@ -8,7 +8,6 @@ import (
 type Info struct {
 	Text    string     `toml:"text"`
 	In      []string   `toml:"in"`
-	Source  []string   `toml:"source"`
 	Start   int        `toml:"start"`
 	End     int        `toml:"end"`
 	Regexps []string   `toml:"regexps"`
@@ -37,7 +36,7 @@ func (info *Info) Extract(data []byte) ([]byte, error) {
 
 type InfoMap map[string]Info
 
-func (im InfoMap) Extract(env *Environment, score float32, sds map[string]SourceData) (map[string][]byte, []string) {
+func (im InfoMap) Extract(env *Environment, score float32, sds []SourceData) (map[string][]byte, []string) {
 	var detail []string
 	result := map[string][]byte{}
 
@@ -46,10 +45,7 @@ func (im InfoMap) Extract(env *Environment, score float32, sds map[string]Source
 		detail = append(detail, fmt.Sprintf("[Info Extract] error:%s", err))
 	}
 
-	args, err := GenArgs(e, score, sds)
-	if err != nil {
-		detail = append(detail, fmt.Sprintf("[Info Extract] error:%s", err))
-	}
+	args := GenArgs(e, score, sds)
 	for name, info := range im {
 		if len(info.Expr) > 0 {
 			r, d := info.Expr.Eval(e, args)
@@ -76,16 +72,8 @@ func (im InfoMap) Extract(env *Environment, score float32, sds map[string]Source
 			}
 			return true
 		}
-		if len(info.Source) > 0 {
-			for _, src := range info.Source {
-				if sd, ok := sds[src]; ok {
-					sd.Range(info.In, extractor)
-				}
-			}
-		} else {
-			for _, sd := range sds {
-				sd.Range(info.In, extractor)
-			}
+		for _, sd := range sds {
+			sd.Range(info.In, extractor)
 		}
 	}
 	return result, detail

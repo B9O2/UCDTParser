@@ -46,26 +46,12 @@ func NewEvaluate(funcs map[string]any, memberMethods map[*types.Type]map[string]
 	return e, nil
 }
 
-func GenArgs(e *evaluate.Evaluate, score float32, sds map[string]SourceData) (map[string]any, error) {
+func GenArgs(e *evaluate.Evaluate, score float32, sds []SourceData) map[string]any {
+	e.DeclareVariable("score", 0)
+	e.DeclareVariable("all", (*expression.SourceDataList)(nil))
 	args := map[string]any{
 		"score": score,
+		"all":   sds,
 	}
-
-	for name, sd := range sds {
-		if err := e.NewClass(name, (*expression.SourceData)(nil), nil); err != nil {
-			return nil, fmt.Errorf("source data '%s' instance failed: %s", name, err)
-		} else {
-			sourceErr := ""
-			if sd.err != nil {
-				sourceErr = sd.err.Error()
-			}
-			args[name] = &expression.SourceData{
-				Data: sd.contents,
-				Err:  sourceErr,
-			}
-
-		}
-	}
-
-	return args, nil
+	return args
 }
