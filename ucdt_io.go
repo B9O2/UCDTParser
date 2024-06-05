@@ -25,17 +25,30 @@ func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 	}
 }
 
-func (sd SourceData) String() string {
+func (sd SourceData) ToString(ignoreParts ...string) string {
 	builder := strings.Builder{}
 	headLine := fmt.Sprintf("===========================\n")
 	builder.WriteString(headLine)
 	sd.Range(nil, func(s string, b []byte) bool {
-		builder.WriteString(fmt.Sprintf("\n[%s]:%s\n", s, string(b)))
+		contains := false
+		for _, part := range ignoreParts {
+			if strings.Contains(part, s) {
+				contains = true
+				break
+			}
+		}
+		if !contains {
+			builder.WriteString(fmt.Sprintf("\n[%s]:%s\n", s, string(b)))
+		}
 		return true
 	})
 	builder.WriteString(strings.Repeat("=", len(headLine)))
 
 	return builder.String()
+}
+
+func (sd SourceData) String() string {
+	return sd.ToString()
 }
 
 type MatchResult struct {

@@ -99,7 +99,6 @@ func (t Tags) Match(env *Environment, threads uint, sds ...SourceData) (MatchRes
 	}
 
 	mrs := NewMatchResults()
-	//todo: Multitasking
 
 	mt := Multitasking.NewMultitasking("match", nil)
 	mt.Register(
