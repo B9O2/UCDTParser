@@ -31,9 +31,13 @@ func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 
 func (sd SourceData) ToString(ignoreParts ...string) string {
 	builder := strings.Builder{}
-	headLine := fmt.Sprintf("===========================\n")
+	headLine := fmt.Sprintf("============= Ignore: %s ==============\n", ignoreParts)
 	builder.WriteString(headLine)
-	sd.Range(nil, func(s string, b []byte) bool {
+	positions := []string{}
+	for k := range sd {
+		positions = append(positions, k)
+	}
+	sd.Range(positions, func(s string, b []byte) bool {
 		contains := false
 		for _, part := range ignoreParts {
 			if strings.Contains(part, s) {

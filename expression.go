@@ -3,6 +3,7 @@ package ucdt
 import (
 	"fmt"
 
+	"github.com/B9O2/UCDTParser/builtin"
 	"github.com/B9O2/UCDTParser/expression"
 	"github.com/B9O2/evaluate"
 	"github.com/google/cel-go/common/types"
@@ -48,10 +49,25 @@ func NewEvaluate(funcs map[string]any, memberMethods map[*types.Type]map[string]
 
 func GenArgs(e *evaluate.Evaluate, score float32, sds []SourceData) map[string]any {
 	e.DeclareVariable("score", 0)
-	e.DeclareVariable("all", (*expression.SourceDataList)(nil))
+	e.NewClass("all", (*expression.SourceDataList)(nil), map[string]any{
+		"contains": builtin.Contains,
+	})
+
+	sdl := &expression.SourceDataList{}
+	for _, sd := range sds {
+		sdl.Sds = append(sdl.Sds, &expression.SourceData{
+			Data: sd,
+		})
+	}
+
 	args := map[string]any{
 		"score": score,
-		"all":   sds,
+		"all":   sdl,
 	}
 	return args
 }
+
+var StandardEnv = NewEnviroment(
+	map[string]any{},
+	map[*types.Type]map[string]any{},
+)

@@ -43,6 +43,7 @@ func (im InfoMap) Extract(env *Environment, score float32, sds []SourceData) (ma
 	e, err := NewEvaluate(env.funcs, env.memberMethods)
 	if err != nil {
 		detail = append(detail, fmt.Sprintf("[Info Extract] error:%s", err))
+		return result, detail
 	}
 
 	args := GenArgs(e, score, sds)

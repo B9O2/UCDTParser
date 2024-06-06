@@ -23,16 +23,38 @@ func (e *Environment) MemberMethods() map[*types.Type]map[string]any {
 	return e.memberMethods
 }
 
-func NewEnviroment(funcs map[string]any, memberMethods map[*types.Type]map[string]any) *Environment {
+func (e *Environment) PatchFuncs(funcs map[string]any) {
 	if funcs == nil {
-		funcs = map[string]any{}
+		return
 	}
+
+	for name, f := range funcs {
+		e.funcs[name] = f
+	}
+}
+
+func (e *Environment) PatchMemberFuncs(memberMethods map[*types.Type]map[string]any) {
 	if memberMethods == nil {
-		memberMethods = map[*types.Type]map[string]any{}
+		return
 	}
+
+	for t, funcs := range memberMethods {
+		if _, ok := e.memberMethods[t]; !ok {
+			e.memberMethods[t] = map[string]any{}
+		}
+		for name, f := range funcs {
+			e.memberMethods[t][name] = f
+		}
+	}
+}
+
+func NewEnviroment(funcs map[string]any, memberMethods map[*types.Type]map[string]any) *Environment {
 	env := &Environment{
-		funcs, memberMethods,
+		funcs:         map[string]any{},
+		memberMethods: map[*types.Type]map[string]any{},
 	}
+	env.PatchFuncs(funcs)
+	env.PatchMemberFuncs(memberMethods)
 	return env
 }
 
@@ -52,7 +74,6 @@ func (t *TagOption) Match(env *Environment, sds ...SourceData) MatchResult {
 	}
 	mr.scoreDetail = scores
 	mr.detail = append(mr.detail, detail...)
-
 	//Expression
 	if len(t.Expr) > 0 {
 		e, err := NewEvaluate(env.funcs, env.memberMethods)
@@ -81,8 +102,10 @@ func (t *TagOption) Match(env *Environment, sds ...SourceData) MatchResult {
 	}
 
 	//Info
+
 	mr.info, detail = t.Info.Extract(env, mr.score, sds)
 	mr.detail = append(mr.detail, detail...)
+
 	return mr
 }
 

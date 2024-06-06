@@ -12,4 +12,4 @@ traits."check_world".contains=["World"]
 #Info
 info."version".text="No Version"
 info."version".regexps=["Hello","MATCH-2"] #任意一个取得数据即可
-info."version".expression='''all'''
+info."version".expression='''all.contains("test","H")'''
