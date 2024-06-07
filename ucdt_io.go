@@ -98,9 +98,9 @@ func (mrs MatchResults) Dump(suitability float32) {
 			title := fmt.Sprintf("%s %.1f%%", name, mr.score*100)
 			fmt.Println(title)
 			if mr.expression {
-				fmt.Println("  [Expression Hit]")
+				fmt.Println("  \\_ Expression Hit")
 			} else {
-				fmt.Println("  [Expression Not Hit]")
+				fmt.Println("  \\_[x] Expression Hit")
 			}
 			for name, i := range mr.scoreDetail[true] {
 				fmt.Println("  \\_", name, i)
@@ -115,10 +115,14 @@ func (mrs MatchResults) Dump(suitability float32) {
 				fmt.Println(" [!]", i)
 			}
 
-			fmt.Println(" Fetch Info:")
-			for k, v := range mr.info {
-				fmt.Println("  "+k, ":", string(v))
+			if len(mr.info) > 0 {
+				fmt.Println(" Fetch Info:")
+				for k, v := range mr.info {
+					fmt.Println("  "+k, ":", string(v))
+				}
 			}
+
+			fmt.Println()
 		}
 		return true
 	})
