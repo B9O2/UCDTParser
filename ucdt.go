@@ -13,7 +13,6 @@ import (
 type Environment struct {
 	funcs         map[string]any
 	memberMethods map[*types.Type]map[string]any
-	httpProxy     string
 }
 
 func (e *Environment) Funcs() map[string]any {
@@ -24,13 +23,6 @@ func (e *Environment) MemberMethods() map[*types.Type]map[string]any {
 	return e.memberMethods
 }
 
-func (e *Environment) HTTPProxy() string {
-	return e.httpProxy
-}
-
-func (e *Environment) SetHTTPProxy(p string) {
-	e.httpProxy = p
-}
 
 func (e *Environment) PatchFuncs(funcs map[string]any) {
 	if funcs == nil {
