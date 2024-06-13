@@ -60,18 +60,18 @@ func (sd SourceData) String() string {
 }
 
 type MatchResult struct {
-	info        map[string][]byte
-	scoreDetail map[bool]map[string]float32
-	detail      []string
-	score       float32
-	expression  bool
-	err         error
+	Info        map[string][]byte
+	ScoreDetail map[bool]map[string]float32
+	Detail      []string
+	Score       float32
+	Expression  bool
+	Err         error
 }
 
 func NewMatchResult() MatchResult {
 	return MatchResult{
-		info: map[string][]byte{},
-		scoreDetail: map[bool]map[string]float32{
+		Info: map[string][]byte{},
+		ScoreDetail: map[bool]map[string]float32{
 			true:  {},
 			false: {},
 		},
@@ -94,30 +94,30 @@ func (mrs MatchResults) Range(f func(string, MatchResult) bool) {
 
 func (mrs MatchResults) Dump(suitability float32) {
 	mrs.Range(func(name string, mr MatchResult) bool {
-		if mr.score >= suitability {
-			title := fmt.Sprintf("%s %.1f%%", name, mr.score*100)
+		if mr.Score >= suitability {
+			title := fmt.Sprintf("%s %.1f%%", name, mr.Score*100)
 			fmt.Println(title)
-			if mr.expression {
+			if mr.Expression {
 				fmt.Println("  \\_ Expression Hit")
 			} else {
 				fmt.Println("  \\_[x] Expression Hit")
 			}
-			for name, i := range mr.scoreDetail[true] {
+			for name, i := range mr.ScoreDetail[true] {
 				fmt.Println("  \\_", name, i)
 			}
-			for name, i := range mr.scoreDetail[false] {
+			for name, i := range mr.ScoreDetail[false] {
 				fmt.Println("  \\_[x]", name, i)
 			}
-			if mr.err != nil {
-				fmt.Printf(" [*]%s\n", mr.err)
+			if mr.Err != nil {
+				fmt.Printf(" [*]%s\n", mr.Err)
 			}
-			for _, i := range mr.detail {
+			for _, i := range mr.Detail {
 				fmt.Println(" [!]", i)
 			}
 
-			if len(mr.info) > 0 {
+			if len(mr.Info) > 0 {
 				fmt.Println(" Fetch Info:")
-				for k, v := range mr.info {
+				for k, v := range mr.Info {
 					fmt.Println("  "+k, ":", string(v))
 				}
 			}

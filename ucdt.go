@@ -23,7 +23,6 @@ func (e *Environment) MemberMethods() map[*types.Type]map[string]any {
 	return e.memberMethods
 }
 
-
 func (e *Environment) PatchFuncs(funcs map[string]any) {
 	if funcs == nil {
 		return
@@ -71,41 +70,41 @@ func (t *TagOption) Match(env *Environment, sds ...SourceData) MatchResult {
 	//Trait
 	scores, detail := t.Traits.Match(sds)
 	for _, s := range scores[true] {
-		mr.score += s
+		mr.Score += s
 	}
-	mr.scoreDetail = scores
-	mr.detail = append(mr.detail, detail...)
+	mr.ScoreDetail = scores
+	mr.Detail = append(mr.Detail, detail...)
 	//Expression
 	if len(t.Expr) > 0 {
 		e, err := NewEvaluate(env.funcs, env.memberMethods)
 		if err != nil {
-			mr.err = err
+			mr.Err = err
 			return mr
 		}
 
-		args := GenArgs(e, mr.score, sds)
+		args := GenArgs(e, mr.Score, sds)
 		r, detail := t.Expr.Eval(e, args)
-		mr.detail = append(mr.detail, detail...)
+		mr.Detail = append(mr.Detail, detail...)
 		if b, ok := r.(bool); ok {
-			mr.expression = b
+			mr.Expression = b
 		} else {
-			mr.detail = append(mr.detail, fmt.Sprintf("expression must return a bool,but '%T'", r))
-			mr.expression = false
+			mr.Detail = append(mr.Detail, fmt.Sprintf("expression must return a bool,but '%T'", r))
+			mr.Expression = false
 		}
 
-		if mr.expression {
-			mr.score = 1
+		if mr.Expression {
+			mr.Score = 1
 		} else {
-			mr.score = 0
+			mr.Score = 0
 		}
 	} else {
-		mr.detail = append(mr.detail, "expression not enabled")
+		mr.Detail = append(mr.Detail, "expression not enabled")
 	}
 
 	//Info
 
-	mr.info, detail = t.Info.Extract(env, mr.score, sds)
-	mr.detail = append(mr.detail, detail...)
+	mr.Info, detail = t.Info.Extract(env, mr.Score, sds)
+	mr.Detail = append(mr.Detail, detail...)
 
 	return mr
 }
