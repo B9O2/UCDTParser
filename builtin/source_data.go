@@ -6,7 +6,7 @@ import (
 	"github.com/B9O2/UCDTParser/expression"
 )
 
-func Contains(all *expression.SourceDataList, position string, substr any) bool {
+func Contains(all *expression.SourceDataset, position string, substr any) bool {
 	var sub []byte
 	switch v := substr.(type) {
 	case string:
@@ -18,7 +18,7 @@ func Contains(all *expression.SourceDataList, position string, substr any) bool 
 	}
 
 	if len(position) > 0 {
-		for _, sd := range all.Sds {
+		for _, sd := range all.Dataset {
 			if v, ok := sd.Data[position]; ok {
 				if bytes.Contains(v, sub) {
 					return true
@@ -26,7 +26,7 @@ func Contains(all *expression.SourceDataList, position string, substr any) bool 
 			}
 		}
 	} else {
-		for _, sd := range all.Sds {
+		for _, sd := range all.Dataset {
 			for _, v := range sd.Data {
 				if bytes.Contains(v, sub) {
 					return true

@@ -7,6 +7,6 @@ message SourceData{
     string source = 2;
 }
 
-message SourceDataList{
-    repeated SourceData sds = 1;
+message SourceDataset{
+    map<string,SourceData> dataset = 1;
 }

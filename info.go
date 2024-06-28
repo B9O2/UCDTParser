@@ -7,6 +7,7 @@ import (
 
 type Info struct {
 	Text    string     `toml:"text"`
+	Source  []string   `toml:"source"`
 	In      []string   `toml:"in"`
 	Start   int        `toml:"start"`
 	End     int        `toml:"end"`
@@ -36,7 +37,7 @@ func (info *Info) Extract(data []byte) ([]byte, error) {
 
 type InfoMap map[string]Info
 
-func (im InfoMap) Extract(env *Environment, score float32, sds []*SourceData) (map[string][]byte, []string) {
+func (im InfoMap) Extract(env *Environment, score float32, sds map[string]*SourceData) (map[string][]byte, []string) {
 	var detail []string
 	result := map[string][]byte{}
 
@@ -73,9 +74,20 @@ func (im InfoMap) Extract(env *Environment, score float32, sds []*SourceData) (m
 			}
 			return true
 		}
-		for _, sd := range sds {
-			sd.Range(info.In, extractor)
+		if len(info.Source) <= 0 {
+			for _, sd := range sds {
+				sd.Range(info.In, extractor)
+			}
+		} else {
+			for _, src := range info.Source {
+				if sd, ok := sds[src]; ok {
+					sd.Range(info.In, extractor)
+				} else {
+					detail = append(detail, fmt.Sprintf("[Info Extract]%s error: source '%s' not exists", name, src))
+				}
+			}
 		}
+
 	}
 	return result, detail
 }

@@ -97,7 +97,7 @@ func (t *TagOption) Match(env *Environment, sds ...*SourceData) MatchResult {
 			return mr
 		}
 
-		args := GenArgs(e, mr.Score, sds)
+		args := GenArgs(e, mr.Score, sdset)
 		r, detail := t.Expr.Eval(e, args)
 		mr.Detail = append(mr.Detail, detail...)
 		if b, ok := r.(bool); ok {
@@ -118,7 +118,7 @@ func (t *TagOption) Match(env *Environment, sds ...*SourceData) MatchResult {
 
 	//Info
 
-	mr.Info, detail = t.Info.Extract(env, mr.Score, sds)
+	mr.Info, detail = t.Info.Extract(env, mr.Score, sdset)
 	mr.Detail = append(mr.Detail, detail...)
 
 	return mr
