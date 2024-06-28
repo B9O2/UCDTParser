@@ -36,7 +36,7 @@ func (info *Info) Extract(data []byte) ([]byte, error) {
 
 type InfoMap map[string]Info
 
-func (im InfoMap) Extract(env *Environment, score float32, sds []SourceData) (map[string][]byte, []string) {
+func (im InfoMap) Extract(env *Environment, score float32, sds []*SourceData) (map[string][]byte, []string) {
 	var detail []string
 	result := map[string][]byte{}
 

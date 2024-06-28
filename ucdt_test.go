@@ -21,7 +21,7 @@ func TestUCDT(t *testing.T) {
 		panic(err)
 	}
 
-	s := SourceData(map[string][]byte{
+	s := NewSourceData("", map[string][]byte{
 		"test": []byte("Hello World!"),
 	})
 

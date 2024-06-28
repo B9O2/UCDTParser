@@ -5,14 +5,17 @@ import (
 	"strings"
 )
 
-type SourceData map[string][]byte
+type SourceData struct {
+	data   map[string][]byte
+	source string
+}
 
 func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 	if len(positions) <= 0 {
-		if raw, ok := sd["raw"]; ok {
+		if raw, ok := sd.data["raw"]; ok {
 			f("raw", raw)
 		} else {
-			for k, v := range sd {
+			for k, v := range sd.data {
 				if !f(k, v) {
 					break
 				}
@@ -20,8 +23,8 @@ func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 		}
 	} else {
 		for _, k := range positions {
-			if _, ok := sd[k]; ok {
-				if !f(k, sd[k]) {
+			if _, ok := sd.data[k]; ok {
+				if !f(k, sd.data[k]) {
 					break
 				}
 			}
@@ -31,10 +34,14 @@ func (sd SourceData) Range(positions []string, f func(string, []byte) bool) {
 
 func (sd SourceData) ToString(ignoreParts ...string) string {
 	builder := strings.Builder{}
-	headLine := fmt.Sprintf("============= Ignore: %s ==============\n", ignoreParts)
+	source := sd.source
+	if len(source) <= 0 {
+		source = "No Source"
+	}
+	headLine := fmt.Sprintf("============= Source: %s == Ignore: %s ==============\n", source, ignoreParts)
 	builder.WriteString(headLine)
 	positions := []string{}
-	for k := range sd {
+	for k := range sd.data {
 		positions = append(positions, k)
 	}
 	sd.Range(positions, func(s string, b []byte) bool {
@@ -57,6 +64,25 @@ func (sd SourceData) ToString(ignoreParts ...string) string {
 
 func (sd SourceData) String() string {
 	return sd.ToString()
+}
+
+func NewSourceData(source string, data map[string][]byte) *SourceData {
+	sd := &SourceData{
+		data:   data,
+		source: source,
+	}
+	if sd.data == nil {
+		sd.data = map[string][]byte{}
+	}
+	return sd
+}
+
+func NewNoSourceData(dataset ...map[string][]byte) []*SourceData {
+	sds := []*SourceData{}
+	for _, data := range dataset {
+		sds = append(sds, NewSourceData("", data))
+	}
+	return sds
 }
 
 type MatchResult struct {

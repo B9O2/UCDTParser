@@ -47,7 +47,7 @@ func NewEvaluate(funcs map[string]any, memberMethods map[*types.Type]map[string]
 	return e, nil
 }
 
-func GenArgs(e *evaluate.Evaluate, score float32, sds []SourceData) map[string]any {
+func GenArgs(e *evaluate.Evaluate, score float32, sds []*SourceData) map[string]any {
 	e.DeclareVariable("score", 0)
 	e.NewClass("all", (*expression.SourceDataList)(nil), map[string]any{
 		"contains": builtin.Contains,
@@ -56,7 +56,8 @@ func GenArgs(e *evaluate.Evaluate, score float32, sds []SourceData) map[string]a
 	sdl := &expression.SourceDataList{}
 	for _, sd := range sds {
 		sdl.Sds = append(sdl.Sds, &expression.SourceData{
-			Data: sd,
+			Data:   sd.data,
+			Source: sd.source,
 		})
 	}
 

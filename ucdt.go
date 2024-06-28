@@ -59,16 +59,31 @@ func NewEnviroment(funcs map[string]any, memberMethods map[*types.Type]map[strin
 }
 
 type TagOption struct {
+	Source []string   `toml:"source"`
 	Traits TraitMap   `toml:"traits"` //[name]TraitOption
 	Info   InfoMap    `toml:"info"`
 	Expr   Expression `toml:"expression"`
 }
 
-func (t *TagOption) Match(env *Environment, sds ...SourceData) MatchResult {
+func (t *TagOption) Match(env *Environment, sds ...*SourceData) MatchResult {
 	mr := NewMatchResult()
+	sdset := map[string]*SourceData{}
+	limited := len(t.Source) > 0
+	for _, sd := range sds {
+		if limited {
+			for _, src := range t.Source {
+				if src == sd.source {
+					sdset[sd.source] = sd
+					break
+				}
+			}
+		} else {
+			sdset[sd.source] = sd
+		}
+	}
 
 	//Trait
-	scores, detail := t.Traits.Match(sds)
+	scores, detail := t.Traits.Match(sdset)
 	for _, s := range scores[true] {
 		mr.Score += s
 	}
@@ -111,7 +126,7 @@ func (t *TagOption) Match(env *Environment, sds ...SourceData) MatchResult {
 
 type Tags map[string]TagOption
 
-func (t Tags) Match(env *Environment, threads uint, sds ...SourceData) (MatchResults, error) {
+func (t Tags) Match(env *Environment, threads uint, sds ...*SourceData) (MatchResults, error) {
 	type task struct {
 		tag string
 		opt TagOption
