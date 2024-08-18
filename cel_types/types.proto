@@ -1,6 +1,6 @@
 syntax = "proto3";
 package ucdt;
-option go_package = "./expression";
+option go_package = "./ucdt_expr";
 
 message SourceData{
     map<string, bytes> data = 1;

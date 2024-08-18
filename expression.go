@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/B9O2/UCDTParser/builtin"
-	"github.com/B9O2/UCDTParser/expression"
+	"github.com/B9O2/UCDTParser/ucdt_expr"
 	"github.com/B9O2/evaluate"
 	"github.com/google/cel-go/common/types"
 )
@@ -49,14 +49,14 @@ func NewEvaluate(funcs map[string]any, memberMethods map[*types.Type]map[string]
 
 func GenArgs(e *evaluate.Evaluate, score float32, sds map[string]*SourceData) map[string]any {
 	e.DeclareVariable("score", 0)
-	e.NewClass("all", (*expression.SourceDataset)(nil), map[string]any{
+	e.NewClass("all", (*ucdt_expr.SourceDataset)(nil), map[string]any{
 		"contains": builtin.Contains,
 	})
 
-	sdset := &expression.SourceDataset{}
-	dataset := map[string]expression.SourceData{}
+	sdset := &ucdt_expr.SourceDataset{}
+	dataset := map[string]ucdt_expr.SourceData{}
 	for k, sd := range sds {
-		dataset[k] = expression.SourceData{
+		dataset[k] = ucdt_expr.SourceData{
 			Source: sd.source,
 			Data:   sd.data,
 		}

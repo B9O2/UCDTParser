@@ -3,10 +3,10 @@ package builtin
 import (
 	"bytes"
 
-	"github.com/B9O2/UCDTParser/expression"
+	"github.com/B9O2/UCDTParser/ucdt_expr"
 )
 
-func Contains(all *expression.SourceDataset, position string, substr any) bool {
+func Contains(all *ucdt_expr.SourceDataset, position string, substr any) bool {
 	var sub []byte
 	switch v := substr.(type) {
 	case string:
