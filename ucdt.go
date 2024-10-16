@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/B9O2/Multitasking"
 	"github.com/BurntSushi/toml"
@@ -13,6 +14,7 @@ import (
 type Environment struct {
 	funcs         map[string]any
 	memberMethods map[*types.Type]map[string]any
+	lock          *sync.Mutex
 }
 
 func (e *Environment) Funcs() map[string]any {
@@ -28,16 +30,18 @@ func (e *Environment) PatchFuncs(funcs map[string]any) {
 		return
 	}
 
+	e.lock.Lock()
 	for name, f := range funcs {
 		e.funcs[name] = f
 	}
+	e.lock.Unlock()
 }
 
 func (e *Environment) PatchMemberFuncs(memberMethods map[*types.Type]map[string]any) {
 	if memberMethods == nil {
 		return
 	}
-
+	e.lock.Lock()
 	for t, funcs := range memberMethods {
 		if _, ok := e.memberMethods[t]; !ok {
 			e.memberMethods[t] = map[string]any{}
@@ -46,12 +50,14 @@ func (e *Environment) PatchMemberFuncs(memberMethods map[*types.Type]map[string]
 			e.memberMethods[t][name] = f
 		}
 	}
+	e.lock.Unlock()
 }
 
 func NewEnviroment(funcs map[string]any, memberMethods map[*types.Type]map[string]any) *Environment {
 	env := &Environment{
 		funcs:         map[string]any{},
 		memberMethods: map[*types.Type]map[string]any{},
+		lock:          &sync.Mutex{},
 	}
 	env.PatchFuncs(funcs)
 	env.PatchMemberFuncs(memberMethods)
